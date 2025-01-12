@@ -109,8 +109,28 @@ void setup()
     Serial.println("mDNS responder started at http://esp32.local");
   }
 
-  // Regular server setup
-  server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
+  // Serve different files based on connection type
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
+            {
+        IPAddress remote_ip = request->client()->remoteIP();
+        
+        // Check if client is connected via AP (192.168.4.x)
+        bool isAP = remote_ip[0] == 192 && 
+                    remote_ip[1] == 168 && 
+                    remote_ip[2] == 4;
+                    
+        String path = isAP ? "/ap/index.html" : "/sta/index.html";
+        request->send(SPIFFS, path, "text/html"); });
+
+  // Serve static files from appropriate folders
+  server.serveStatic("/ap/", SPIFFS, "/ap/");
+  server.serveStatic("/sta/", SPIFFS, "/sta/");
+  server.serveStatic("/shared/", SPIFFS, "/shared/");
+
+  // Special case for favicon.ico at root
+  server.on("/favicon.ico", HTTP_GET, [](AsyncWebServerRequest *request)
+            { request->send(SPIFFS, "/shared/favicon.ico", "image/x-icon"); });
+
   ws.onEvent(onWebSocketEvent);
   server.addHandler(&ws);
   server.begin();
