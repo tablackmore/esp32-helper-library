@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ESP32 Wi-Fi Manager</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" href="/favicon.ico" />
+</head>
+<body>
+  <h1>ESP32 Wi-Fi Manager</h1>
+  <div class="wifi-section">
+      <h2>Wi-Fi Settings</h2>
+      <div class="wifi-row">
+          <label for="current-ssid">SSID:</label>
+          <span id="current-ssid">ESP32_Network</span>
+      </div>
+      <div class="wifi-row">
+          <button id="scanBtn">Scan Networks</button>
+      </div>
+      <div id="spinner" class="spinner"></div>
+      <div id="available-networks"></div>
+      <div id="status" style="margin-top: 20px; color: #007BFF;"></div>
+  </div>
+  <script src="main.js"></script>
+</body>
+</html>
