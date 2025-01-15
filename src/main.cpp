@@ -5,7 +5,9 @@
 #include <ArduinoJson.h>
 #include <ESPmDNS.h>
 #include <DNSServer.h>
-#include "WiFiScanner.h"
+#include "utils/WiFiScanner.h"
+#include "config/ConfigWebSocket.h"
+#include "midi/MidiWebSocket.h"
 
 const char *ssid = "Test_Network";
 const char *password = "12345678";
@@ -14,64 +16,6 @@ const char *hostname = "esp32";
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 DNSServer dnsServer;
-
-void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
-                      AwsEventType type, void *arg, uint8_t *data, size_t len)
-{
-  if (type == WS_EVT_CONNECT)
-  {
-    Serial.printf("WebSocket client #%u connected\n", client->id());
-  }
-  else if (type == WS_EVT_DISCONNECT)
-  {
-    Serial.printf("WebSocket client #%u disconnected\n", client->id());
-  }
-  else if (type == WS_EVT_DATA)
-  {
-    AwsFrameInfo *info = (AwsFrameInfo *)arg;
-    if (info->opcode == WS_TEXT)
-    {
-      String message = String((char *)data).substring(0, len);
-
-      JsonDocument doc;
-      DeserializationError error = deserializeJson(doc, message);
-      if (error)
-        return;
-
-      String type = doc["type"];
-      if (type == "scanNetworks")
-      {
-        WiFiScanner::getInstance().subscribe([client](const String &networkList)
-                                             {
-                    if (client && client->status() == WS_CONNECTED) {
-                      JsonDocument networksDoc;
-                      deserializeJson(networksDoc, networkList);
-                      
-                      JsonDocument doc;
-                      doc["type"] = "networkList";
-                      doc["networks"] = networksDoc.as<JsonArray>();
-                      
-                      String Sedoc;
-                      serializeJson(doc, Sedoc);
-                      client->text(Sedoc);
-                  } });
-      }
-      else if (type == "connect")
-      {
-        WiFiScanner::getInstance().connectToNetwork(
-            doc["ssid"].as<String>(),
-            doc["password"].as<String>(),
-            [client](const String &status)
-            {
-              if (client && client->status() == WS_CONNECTED)
-              {
-                client->text(status);
-              }
-            });
-      }
-    }
-  }
-}
 
 void setup()
 {
@@ -131,15 +75,23 @@ void setup()
   server.on("/favicon.ico", HTTP_GET, [](AsyncWebServerRequest *request)
             { request->send(SPIFFS, "/shared/favicon.ico", "image/x-icon"); });
 
-  ws.onEvent(onWebSocketEvent);
-  server.addHandler(&ws);
+  delay(200); // Allow server to start
+  ConfigWebSocket::getInstance().begin(&server);
+  MidiWebSocket::getInstance().begin(&server);
+
   server.begin();
+  delay(500); // Allow server to start
+  Serial.println("Web Server started");
+
+  MidiWebSocket::getInstance().startBluetooth();
 }
 
 void loop()
 {
   static unsigned long lastDnsCheck = 0;
   const unsigned long DNS_CHECK_INTERVAL = 100; // Check DNS every 100ms
+
+  MidiWebSocket::getInstance().update();
 
   unsigned long currentMillis = millis();
   if (currentMillis - lastDnsCheck >= DNS_CHECK_INTERVAL)
