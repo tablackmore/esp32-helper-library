@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-  const socket = new WebSocket(`ws://${location.hostname}/ws`);
+  const socket = new WebSocket(`ws://${location.hostname}/config`);
   const statusElement = document.getElementById("status");
   const spinner = document.getElementById("spinner");
   const scanBtn = document.getElementById("scanBtn");
