@@ -12,6 +12,7 @@ public:
     void begin(AsyncWebServer *server);
     void startBluetooth();
     void update();
+    void end();
 
 private:
     static const char *WEBSOCKET_PATH;
