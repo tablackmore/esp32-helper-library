@@ -120,3 +120,8 @@ void loop()
 
   WiFiScanner::getInstance().checkScanResult();
 }
+
+void onProgrammingMode() {
+    MidiWebSocket::getInstance().end();  // Close Serial2 MIDI connection
+    delay(100);  // Give it a moment to finish any pending operations
+}
