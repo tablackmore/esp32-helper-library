@@ -26,6 +26,17 @@ void setup()
     return;
   }
 
+    delay(1000);
+    
+  // Try to connect using saved credentials first
+  WiFiScanner::getInstance().tryLoadSavedNetwork([](bool success) {
+        if (success) {
+            Serial.println("Connected to saved network!");
+        } else {
+            Serial.println("Failed to connect to saved network");
+        }
+    });
+
   // 1. Configure WiFi
   WiFi.persistent(false);
   WiFi.mode(WIFI_AP_STA);

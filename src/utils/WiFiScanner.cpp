@@ -1,4 +1,7 @@
 #include "WiFiScanner.h"
+#include <Preferences.h>
+
+Preferences preferences;
 
 WiFiScanner::WiFiScanner() {}
 WiFiScanner::~WiFiScanner() {}
@@ -117,6 +120,10 @@ void WiFiScanner::connectToNetwork(const String &ssid, const String &password, S
         response["ip"] = WiFi.localIP().toString();
         response["gateway"] = WiFi.gatewayIP().toString();
         response["subnet"] = WiFi.subnetMask().toString();
+        preferences.begin("wifi-config", false);
+        preferences.putString("ssid", ssid);
+        preferences.putString("password", password);
+        preferences.end();
     }
     else
     {
@@ -127,4 +134,23 @@ void WiFiScanner::connectToNetwork(const String &ssid, const String &password, S
     serializeJson(response, jsonResponse);
     Serial.printf("DEBUG: Connection response: %s\n", jsonResponse.c_str());
     callback(jsonResponse);
+}
+
+bool WiFiScanner::tryLoadSavedNetwork(std::function<void(bool)> callback) {
+    preferences.begin("wifi-config", true);
+    String savedSSID = preferences.getString("ssid", "");
+    String savedPassword = preferences.getString("password", "");
+    preferences.end();
+    
+    if (savedSSID.length() > 0) {
+        connectToNetwork(savedSSID.c_str(), savedPassword.c_str(), callback);
+        return true;
+    }
+    return false;
+}
+
+void WiFiScanner::clearSavedNetwork() {
+    preferences.begin("wifi-config", false);
+    preferences.clear();
+    preferences.end();
 }

@@ -16,6 +16,8 @@ public:
     void subscribe(ScanResultCallback callback);
     void connectToNetwork(const String &ssid, const String &password, ScanResultCallback callback);
     void checkScanResult(); // New public method for loop
+    bool tryLoadSavedNetwork(std::function<void(bool)> callback);
+    void clearSavedNetwork();
 
 private:
     WiFiScanner();
