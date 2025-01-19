@@ -136,20 +136,46 @@ void WiFiScanner::connectToNetwork(const String &ssid, const String &password, S
     callback(jsonResponse);
 }
 
-bool WiFiScanner::tryLoadSavedNetwork(std::function<void(bool)> callback) {
+void WiFiScanner::tryLoadSavedNetwork(std::function<void(bool)> callback)
+{
     preferences.begin("wifi-config", true);
     String savedSSID = preferences.getString("ssid", "");
     String savedPassword = preferences.getString("password", "");
     preferences.end();
-    
-    if (savedSSID.length() > 0) {
-        connectToNetwork(savedSSID.c_str(), savedPassword.c_str(), callback);
-        return true;
+
+    if (savedSSID.length() > 0)
+    {
+        // Start connection attempt
+        WiFi.begin(savedSSID.c_str(), savedPassword.c_str());
+
+        // Wait for connection (with timeout)
+        unsigned long startTime = millis();
+        while (WiFi.status() != WL_CONNECTED && millis() - startTime < 10000)
+        { // 10 second timeout
+            delay(500);
+            Serial.print(".");
+        }
+
+        bool connected = (WiFi.status() == WL_CONNECTED);
+        Serial.println();
+
+        if (connected)
+        {
+            Serial.println("Successfully connected to saved network");
+            callback(true);
+        }
+        else
+        {
+            Serial.println("Failed to connect to saved network");
+            callback(false);
+        }
     }
-    return false;
+
+    callback(false);
 }
 
-void WiFiScanner::clearSavedNetwork() {
+void WiFiScanner::clearSavedNetwork()
+{
     preferences.begin("wifi-config", false);
     preferences.clear();
     preferences.end();
