@@ -1,182 +1,306 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>ESP32 MIDI Controller</title>
+    <link rel="stylesheet" href="/shared/variables.css">
+    <link rel="stylesheet" href="/shared/base.css">
     <style>
         .controls {
             display: flex;
-            width: 400px;
-            margin: 20px auto;
-            gap: 10px;
+            width: 100%;
+            max-width: 800px;
+            margin: var(--spacing-xl) auto;
+            gap: var(--spacing-md);
+            background-color: var(--surface-color);
+            padding: var(--spacing-lg);
+            box-shadow: var(--box-shadow);
         }
-        
+
         .control-group {
             display: flex;
             flex-direction: column;
             align-items: center;
+            gap: var(--spacing-sm);
         }
-        
+
         .slider {
             writing-mode: bt-lr;
             -webkit-appearance: slider-vertical;
-            width: 20px;
-            height: 100px;
+            width: 6px;
+            height: 150px;
+            background: var(--border-color);
+            cursor: pointer;
         }
-        
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: var(--primary-color);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
         .channel-select {
-            margin: 20px;
-            padding: 5px;
+            margin: var(--spacing-lg) auto;
+            padding: var(--spacing-sm);
+            display: block;
+            background-color: var(--surface-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            width: 120px;
         }
+
+        .piano-container {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            margin: var(--spacing-xl) auto;
+            max-width: 800px;
+        }
+
+        .octave-controls {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .octave-btn {
+            width: 40px;
+            height: 40px;
+            background-color: var(--surface-color);
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: var(--font-size-large);
+            transition: all var(--transition-speed) var(--transition-timing);
+        }
+
+        .octave-btn:hover {
+            background-color: var(--primary-color);
+            color: var(--background-color);
+        }
+
+        .octave-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            border-color: var(--border-color);
+            color: var(--border-color);
+        }
+
+        .octave-display {
+            color: var(--primary-color);
+            text-align: center;
+            font-size: var(--font-size-small);
+            margin: var(--spacing-xs) 0;
+        }
+
         .piano {
             display: flex;
             position: relative;
-            width: 400px;
-            height: 150px;
-            margin: 20px auto;
+            width: 800px;
+            height: 200px;
+            background-color: var(--surface-color);
+            padding: var(--spacing-md);
+            box-shadow: var(--box-shadow);
+            margin: 0;
         }
-        
+
         .white-key {
             flex: 1;
-            background: white;
-            border: 1px solid #ccc;
+            background: var(--text-color-bright);
+            border: 1px solid var(--border-color);
             height: 100%;
             margin: 0 1px;
             cursor: pointer;
+            transition: background-color var(--transition-speed) var(--transition-timing);
         }
-        
+
         .black-key {
             position: absolute;
-            background: black;
-            width: 30px;
-            height: 90px;
+            background: var(--background-color);
+            width: 40px;
+            height: 120px;
             cursor: pointer;
+            transition: background-color var(--transition-speed) var(--transition-timing);
         }
-        
-        .black-key.C_sharp { left: 35px; }
-        .black-key.D_sharp { left: 95px; }
-        .black-key.F_sharp { left: 215px; }
-        .black-key.G_sharp { left: 275px; }
-        .black-key.A_sharp { left: 335px; }
-        
+
+        .black-key.C_sharp {
+            left: 12%;
+        }
+
+        .black-key.D_sharp {
+            left: 26%;
+        }
+
+        .black-key.F_sharp {
+            left: 55%;
+        }
+
+        .black-key.G_sharp {
+            left: 69%;
+        }
+
+        .black-key.A_sharp {
+            left: 83%;
+        }
+
+        .white-key:hover {
+            background: #f0f0f0;
+        }
+
+        .black-key:hover {
+            background: #111;
+        }
+
         .key.active {
-            background: #cccccc;
+            background: var(--primary-color) !important;
         }
-        
-        .black-key.active {
-            background: #333333;
+
+        .control-group label {
+            color: var(--text-color);
+            font-size: var(--font-size-small);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: var(--spacing-md);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: var(--spacing-xxl);
         }
     </style>
 </head>
+
 <body>
-    <select id="midiChannel" class="channel-select">
-        <option value="all">All Channels</option>
-        <option value="1">Channel 1</option>
-        <option value="2">Channel 2</option>
-        <option value="3">Channel 3</option>
-        <option value="4">Channel 4</option>
-        <option value="5">Channel 5</option>
-        <option value="6">Channel 6</option>
-        <option value="7">Channel 7</option>
-        <option value="8">Channel 8</option>
-        <option value="9">Channel 9</option>
-        <option value="10">Channel 10</option>
-        <option value="11">Channel 11</option>
-        <option value="12">Channel 12</option>
-        <option value="13">Channel 13</option>
-        <option value="14">Channel 14</option>
-        <option value="15">Channel 15</option>
-        <option value="16">Channel 16</option>
-    </select>
-    <div class="controls">
-        <div class="control-group">
-            <input type="range" class="slider" min="0" max="127" value="64" 
-                   data-cc="7" title="Volume">
-            <label>Vol</label>
+    <div class="container">
+        <h1>MIDI Controller</h1>
+
+        <select id="midiChannel" class="channel-select form-control">
+            <option value="all">All Channels</option>
+            <option value="1">Channel 1</option>
+            <option value="2">Channel 2</option>
+            <option value="3">Channel 3</option>
+            <option value="4">Channel 4</option>
+            <option value="5">Channel 5</option>
+            <option value="6">Channel 6</option>
+            <option value="7">Channel 7</option>
+            <option value="8">Channel 8</option>
+            <option value="9">Channel 9</option>
+            <option value="10">Channel 10</option>
+            <option value="11">Channel 11</option>
+            <option value="12">Channel 12</option>
+            <option value="13">Channel 13</option>
+            <option value="14">Channel 14</option>
+            <option value="15">Channel 15</option>
+            <option value="16">Channel 16</option>
+        </select>
+
+        <div class="controls">
+            <div class="control-group">
+                <input type="range" class="slider" min="0" max="127" value="64" data-cc="7" title="Volume">
+                <label>Vol</label>
+            </div>
+            <div class="control-group">
+                <input type="range" class="slider" min="0" max="127" value="64" data-cc="10" title="Pan">
+                <label>Pan</label>
+            </div>
+            <div class="control-group">
+                <input type="range" class="slider" min="0" max="127" value="127" data-cc="11" title="Expression">
+                <label>Exp</label>
+            </div>
+            <div class="control-group">
+                <input type="range" class="slider" min="0" max="127" value="0" data-cc="1" title="Modulation">
+                <label>Mod</label>
+            </div>
+            <div class="control-group">
+                <input type="range" class="slider" min="0" max="127" value="0" data-cc="64" title="Sustain">
+                <label>Sus</label>
+            </div>
+            <div class="control-group">
+                <input type="range" class="slider" min="0" max="127" value="0" data-cc="91" title="Reverb">
+                <label>Rev</label>
+            </div>
+            <div class="control-group">
+                <input type="range" class="slider" min="0" max="127" value="0" data-cc="93" title="Chorus">
+                <label>Cho</label>
+            </div>
+            <div class="control-group">
+                <input type="range" class="slider" min="0" max="127" value="64" data-cc="71" title="Resonance">
+                <label>Res</label>
+            </div>
+            <div class="control-group">
+                <input type="range" class="slider" min="0" max="127" value="64" data-cc="72" title="Release Time">
+                <label>Rel</label>
+            </div>
+            <div class="control-group">
+                <input type="range" class="slider" min="0" max="127" value="64" data-cc="73" title="Attack Time">
+                <label>Atk</label>
+            </div>
+            <div class="control-group">
+                <input type="range" class="slider" min="0" max="127" value="64" data-cc="74" title="Brightness">
+                <label>Bri</label>
+            </div>
+            <div class="control-group">
+                <input type="range" class="slider" min="0" max="127" value="64" data-cc="75" title="Decay Time">
+                <label>Dec</label>
+            </div>
         </div>
-        <div class="control-group">
-            <input type="range" class="slider" min="0" max="127" value="64" 
-                   data-cc="10" title="Pan">
-            <label>Pan</label>
+
+        <div class="piano-container">
+            <div class="octave-controls">
+                <button class="octave-btn" id="octaveUp">+</button>
+                <div class="octave-display" id="octaveDisplay">4</div>
+                <button class="octave-btn" id="octaveDown">-</button>
+            </div>
+            <div class="piano">
+                <div class="white-key" data-note="60"></div>
+                <div class="black-key C_sharp" data-note="61"></div>
+                <div class="white-key" data-note="62"></div>
+                <div class="black-key D_sharp" data-note="63"></div>
+                <div class="white-key" data-note="64"></div>
+                <div class="white-key" data-note="65"></div>
+                <div class="black-key F_sharp" data-note="66"></div>
+                <div class="white-key" data-note="67"></div>
+                <div class="black-key G_sharp" data-note="68"></div>
+                <div class="white-key" data-note="69"></div>
+                <div class="black-key A_sharp" data-note="70"></div>
+                <div class="white-key" data-note="71"></div>
+            </div>
         </div>
-        <div class="control-group">
-            <input type="range" class="slider" min="0" max="127" value="127" 
-                   data-cc="11" title="Expression">
-            <label>Exp</label>
-        </div>
-        <div class="control-group">
-            <input type="range" class="slider" min="0" max="127" value="0" 
-                   data-cc="1" title="Modulation">
-            <label>Mod</label>
-        </div>
-        <div class="control-group">
-            <input type="range" class="slider" min="0" max="127" value="0" 
-                   data-cc="64" title="Sustain">
-            <label>Sus</label>
-        </div>
-        <div class="control-group">
-            <input type="range" class="slider" min="0" max="127" value="0" 
-                   data-cc="91" title="Reverb">
-            <label>Rev</label>
-        </div>
-        <div class="control-group">
-            <input type="range" class="slider" min="0" max="127" value="0" 
-                   data-cc="93" title="Chorus">
-            <label>Cho</label>
-        </div>
-        <div class="control-group">
-            <input type="range" class="slider" min="0" max="127" value="64" 
-                data-cc="71" title="Resonance">
-            <label>Res</label>
-        </div>
-        <div class="control-group">
-            <input type="range" class="slider" min="0" max="127" value="64" 
-                data-cc="72" title="Release Time">
-            <label>Rel</label>
-        </div>
-        <div class="control-group">
-            <input type="range" class="slider" min="0" max="127" value="64" 
-                data-cc="73" title="Attack Time">
-            <label>Atk</label>
-        </div>
-        <div class="control-group">
-            <input type="range" class="slider" min="0" max="127" value="64" 
-                data-cc="74" title="Brightness">
-            <label>Bri</label>
-        </div>
-        <div class="control-group">
-            <input type="range" class="slider" min="0" max="127" value="64" 
-                data-cc="75" title="Decay Time">
-            <label>Dec</label>
-        </div>
-    </div>
-    <div class="piano">
-        <div class="white-key" data-note="60"></div>
-        <div class="black-key C_sharp" data-note="61"></div>
-        <div class="white-key" data-note="62"></div>
-        <div class="black-key D_sharp" data-note="63"></div>
-        <div class="white-key" data-note="64"></div>
-        <div class="white-key" data-note="65"></div>
-        <div class="black-key F_sharp" data-note="66"></div>
-        <div class="white-key" data-note="67"></div>
-        <div class="black-key G_sharp" data-note="68"></div>
-        <div class="white-key" data-note="69"></div>
-        <div class="black-key A_sharp" data-note="70"></div>
-        <div class="white-key" data-note="71"></div>
     </div>
 
     <script>
         const ws = new WebSocket('ws://' + window.location.hostname + '/midi');
-        
+
         ws.onopen = () => console.log('WebSocket Connected');
         ws.onerror = (error) => console.error('WebSocket Error:', error);
         ws.onclose = () => console.log('WebSocket Disconnected');
-        
+
         document.querySelectorAll('.slider').forEach(slider => {
             slider.addEventListener('input', (e) => {
                 const cc = e.target.dataset.cc;
                 const value = e.target.value;
                 const channel = document.getElementById('midiChannel').value;
-                
+
                 ws.send(JSON.stringify({
                     type: 'controlChange',
                     controller: parseInt(cc),
@@ -191,44 +315,90 @@
             window.midiChannel = e.target.value;
         });
 
+        // Octave control
+        let currentOctave = 4; // Starting octave
+        const MIN_OCTAVE = 0;
+        const MAX_OCTAVE = 8;
+        const NOTES_PER_OCTAVE = 12;
+
+        const octaveUp = document.getElementById('octaveUp');
+        const octaveDown = document.getElementById('octaveDown');
+        const octaveDisplay = document.getElementById('octaveDisplay');
+
+        function updateOctaveButtons() {
+            octaveUp.disabled = currentOctave >= MAX_OCTAVE;
+            octaveDown.disabled = currentOctave <= MIN_OCTAVE;
+            octaveDisplay.textContent = currentOctave;
+        }
+
+        function getAdjustedNote(baseNote) {
+            return baseNote + ((currentOctave - 4) * NOTES_PER_OCTAVE);
+        }
+
+        octaveUp.addEventListener('click', () => {
+            if (currentOctave < MAX_OCTAVE) {
+                currentOctave++;
+                updateOctaveButtons();
+            }
+        });
+
+        octaveDown.addEventListener('click', () => {
+            if (currentOctave > MIN_OCTAVE) {
+                currentOctave--;
+                updateOctaveButtons();
+            }
+        });
+
+        // Update the key event listeners to use the adjusted notes
         document.querySelectorAll('.white-key, .black-key').forEach(key => {
-            const note = parseInt(key.dataset.note);
-            const channel = document.getElementById('midiChannel').value;
+            const baseNote = parseInt(key.dataset.note);
+
             const startNote = (event) => {
                 key.classList.add('active');
+                const adjustedNote = getAdjustedNote(baseNote);
                 ws.send(JSON.stringify({
                     type: 'noteOn',
-                    note: note,
+                    note: adjustedNote,
                     velocity: 127,
                     channel: window.midiChannel === 'all' ? 0 : parseInt(window.midiChannel)
                 }));
             };
-            
+
             const endNote = (event) => {
                 key.classList.remove('active');
+                const adjustedNote = getAdjustedNote(baseNote);
                 ws.send(JSON.stringify({
                     type: 'noteOff',
-                    note: note,
+                    note: adjustedNote,
                     velocity: 0,
                     channel: window.midiChannel === 'all' ? 0 : parseInt(window.midiChannel)
                 }));
             };
-            
-            key.addEventListener('mousedown', startNote);
-            key.addEventListener('mouseup', endNote);
-            key.addEventListener('mouseleave', endNote);
-            
+
+            // Clear existing listeners
+            key.replaceWith(key.cloneNode(true));
+            const newKey = document.querySelector(`[data-note="${baseNote}"]`);
+
+            // Add new listeners
+            newKey.addEventListener('mousedown', startNote);
+            newKey.addEventListener('mouseup', endNote);
+            newKey.addEventListener('mouseleave', endNote);
+
             // Touch support
-            key.addEventListener('touchstart', (e) => {
+            newKey.addEventListener('touchstart', (e) => {
                 e.preventDefault();
                 startNote(e);
             });
-            
-            key.addEventListener('touchend', (e) => {
+
+            newKey.addEventListener('touchend', (e) => {
                 e.preventDefault();
                 endNote(e);
             });
         });
+
+        // Initialize octave buttons state
+        updateOctaveButtons();
     </script>
 </body>
+
 </html>
