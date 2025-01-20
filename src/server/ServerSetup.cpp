@@ -1,7 +1,7 @@
 #include "ServerSetup.h"
 #include <ESPAsyncWebServer.h>
 #include <ESPmDNS.h>
-#include "WebServer.h"
+#include "core/WebServer.h"
 
 AsyncWebServer *ServerSetup::initializeServer()
 {

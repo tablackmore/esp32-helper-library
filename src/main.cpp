@@ -4,9 +4,9 @@
 #include "utils/WiFiScanner.h"
 #include "config/ConfigWebSocket.h"
 #include "midi/MidiWebSocket.h"
-#include "server/WebServer.h"
-#include "server/DnsManager.h"
-#include "server/WiFiManager.h"
+#include "core/WebServer.h"
+#include "core/DnsManager.h"
+#include "core/WiFiManager.h"
 
 const char *ssid = "Test_Network";
 const char *password = "12345678";
