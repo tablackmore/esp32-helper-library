@@ -1,0 +1,71 @@
+:root {
+    /* Colors */
+    --primary-color: #C6A96C;
+    /* Gold */
+    --primary-hover: #D4BC8B;
+    /* Lighter gold for hover */
+    --secondary-color: #9F8C67;
+    /* Muted gold */
+    --text-color: #B3B3B3;
+    /* Light gray for regular text */
+    --text-color-bright: #FFFFFF;
+    /* White for important text */
+    --heading-color: #C6A96C;
+    /* Gold for headings */
+    --background-color: #1C1C1C;
+    /* Dark background */
+    --surface-color: #242424;
+    /* Slightly lighter dark for cards */
+    --border-color: #333333;
+    /* Dark gray for borders */
+    --error-color: #CF6679;
+    /* Muted red for dark theme */
+    --success-color: #81C784;
+    /* Muted green for dark theme */
+
+    /* Typography */
+    --font-family: 'Segoe UI', Arial, sans-serif;
+    --font-size-small: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-large: 1.25rem;
+    --font-size-xlarge: 1.5rem;
+    --font-size-xxlarge: 3rem;
+    /* Larger headlines like in the example */
+    --font-weight-normal: 300;
+    /* Lighter default weight */
+    --font-weight-bold: 500;
+    /* Not too heavy bold */
+    --line-height: 1.6;
+
+    /* Spacing */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-xxl: 4rem;
+    /* For larger vertical spacing */
+
+    /* Layout */
+    --container-width: 1200px;
+    /* Wider container */
+    --border-radius: 0;
+    /* Sharp corners like the example */
+    --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    /* Deeper shadows for dark theme */
+
+    /* Form Control Sizes */
+    --input-height: 2.5rem;
+    --input-padding: 0.5rem;
+
+    /* Transitions */
+    --transition-speed: 0.3s;
+    --transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Focus ring */
+    --focus-ring: 0 0 0 2px var(--primary-color);
+
+    /* Overlays */
+    --overlay-color: rgba(0, 0, 0, 0.7);
+    --backdrop-blur: blur(10px);
+}
