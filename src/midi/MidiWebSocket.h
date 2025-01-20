@@ -4,15 +4,16 @@
 #include <Arduino.h>
 #include <ESPAsyncWebServer.h>
 #include <ArduinoJson.h>
+#include "MidiHandler.h"
 
 class MidiWebSocket
 {
 public:
     static MidiWebSocket &getInstance();
     void begin(AsyncWebServer *server);
-    void startBluetooth();
-    void update();
-    void end();
+    void startBluetooth() { MidiHandler::getInstance().begin(); }
+    void update() { MidiHandler::getInstance().update(); }
+    void end() { MidiHandler::getInstance().end(); }
 
 private:
     static const char *WEBSOCKET_PATH;
