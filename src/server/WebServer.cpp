@@ -49,7 +49,6 @@ void WebServer::setupStaticRoutes()
     // Generic file handler
     server.on("/*", HTTP_GET, [this](AsyncWebServerRequest *request)
               {
-        if (request->url() == "/ap/index.html") return;
 
         String path = "/web" + request->url();
         String gzPath = path + ".gz";
