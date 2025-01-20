@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ESPAsyncWebServer.h>
-#include "WebServer.h"
+#include "../core/WebServer.h"
 
 class ServerSetup
 {
