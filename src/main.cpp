@@ -59,7 +59,6 @@ void setup()
 
 void loop()
 {
-  MidiWebSocket::getInstance().update();
   DnsManager::getInstance().processRequests();
   WiFiManager::getInstance().checkScanResult();
 }

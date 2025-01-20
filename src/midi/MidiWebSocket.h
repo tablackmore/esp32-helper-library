@@ -12,7 +12,6 @@ public:
     static MidiWebSocket &getInstance();
     void begin(AsyncWebServer *server);
     void startBluetooth() { MidiHandler::getInstance().begin(); }
-    void update() { MidiHandler::getInstance().update(); }
     void end() { MidiHandler::getInstance().end(); }
 
 private:
