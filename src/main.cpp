@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include <WiFi.h>
 #include <SPIFFS.h>
 #include <ESPAsyncWebServer.h>
 #include "utils/WiFiScanner.h"
@@ -7,6 +6,7 @@
 #include "midi/MidiWebSocket.h"
 #include "server/WebServer.h"
 #include "server/DnsManager.h"
+#include "server/WiFiManager.h"
 
 const char *ssid = "Test_Network";
 const char *password = "12345678";
@@ -27,31 +27,24 @@ void setup()
   Serial.println("File system mounted SPIFFS");
   delay(1000);
 
-  // Configure WiFi Access Point
-  WiFi.persistent(false);
-  WiFi.mode(WIFI_AP_STA);
-  WiFi.softAPConfig(IPAddress(192, 168, 4, 1), IPAddress(192, 168, 4, 1), IPAddress(255, 255, 255, 0));
-  WiFi.softAP(ssid, password);
-  delay(4000);
-
-  IPAddress IP = WiFi.softAPIP();
-  Serial.print("AP IP address: ");
-  Serial.println(IP);
+  // Configure WiFi
+  WiFiManager::getInstance().setHostname(hostname);
+  WiFiManager::getInstance().beginAccessPoint(ssid, password);
 
   // Try to connect to saved WiFi network
-  WiFiScanner::getInstance().tryLoadSavedNetwork([](bool success)
+  WiFiManager::getInstance().tryLoadSavedNetwork([](bool success)
                                                  {
-        if (success) {
-            Serial.println("Connected to saved network!");
-            IPAddress staIP = WiFi.localIP();
-            Serial.print("STA IP address: ");
-            Serial.println(staIP);
-        } else {
-            Serial.println("Failed to connect to saved network");
-        } });
+    if (success) {
+      Serial.println("Connected to saved network!");
+      IPAddress staIP = WiFi.localIP();
+      Serial.print("STA IP address: ");
+      Serial.println(staIP);
+    } else {
+      Serial.println("Failed to connect to saved network");
+    } });
 
   // Initialize DNS and Web services
-  DnsManager::getInstance().begin(IP, hostname);
+  DnsManager::getInstance().begin(WiFiManager::getInstance().getAccessPointIP(), hostname);
   WebServer::getInstance().begin();
 
   // Setup WebSocket handlers
@@ -68,7 +61,7 @@ void loop()
 {
   MidiWebSocket::getInstance().update();
   DnsManager::getInstance().processRequests();
-  WiFiScanner::getInstance().checkScanResult();
+  WiFiManager::getInstance().checkScanResult();
 }
 
 void onProgrammingMode()
