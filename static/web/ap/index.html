@@ -12,22 +12,23 @@
 <body>
   <div class="container">
     <h1>ESP32 Wi-Fi Manager</h1>
-    <div class="card wifi-section">
-      <h2>Keyboard</h2>
-      <div>
-        <a href="/shared/keyboard.html">Webkeyboard</a>
-      </div>
-      <h2>Wi-Fi Settings</h2>
+    <div class="wifi-section">
       <div class="wifi-row">
-        <label for="current-ssid">SSID:</label>
+        <label>Current Network</label>
         <span id="current-ssid">ESP32_Network</span>
       </div>
       <div class="wifi-row">
-        <button id="scanBtn">Scan Networks</button>
+        <button id="scanBtn" class="square-btn">Scan Networks</button>
       </div>
       <div id="spinner" class="spinner"></div>
       <div id="available-networks"></div>
-      <div id="status" style="margin-top: 20px; color: var(--secondary-color);"></div>
+      <div id="status" class="status-message"></div>
+    </div>
+    <div class="wifi-section">
+      <h2>Quick Links</h2>
+      <div class="wifi-row">
+        <a href="/shared/keyboard.html" class="square-btn">Web Keyboard</a>
+      </div>
     </div>
   </div>
   <script src="/ap/main.js"></script>

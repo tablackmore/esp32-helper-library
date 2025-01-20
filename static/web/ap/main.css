@@ -1,65 +1,189 @@
 body {
-  font-family: Arial, sans-serif;
-  margin: 20px;
+  font-family: var(--font-family);
+  margin: 0;
+  background-color: var(--background-color);
 }
 
 h1 {
   text-align: center;
+  color: var(--heading-color);
+  font-size: var(--font-size-xxlarge);
+  font-weight: var(--font-weight-normal);
+  letter-spacing: 0.02em;
+}
+
+h2 {
+  color: var(--heading-color);
+  font-weight: var(--font-weight-normal);
+  font-size: var(--font-size-xlarge);
 }
 
 .wifi-section {
   margin: var(--spacing-lg) auto;
-  max-width: 500px;
-  padding: 20px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background-color: #f9f9f9;
+  padding: var(--spacing-xl);
+  border: 1px solid var(--primary-color);
+  background-color: var(--background-color);
+  box-shadow: var(--box-shadow);
+  border-radius: 0;
 }
 
 .wifi-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
 }
 
 .wifi-row label {
+  color: var(--text-color);
   flex: 1;
-  margin-right: var(--spacing-sm);
+  margin-right: var(--spacing-lg);
+}
+
+.wifi-row span {
+  color: var(--text-color);
 }
 
 #available-networks {
   margin-top: var(--spacing-lg);
 }
 
-input[type="text"],
-input[type="password"] {
+/* Network list styling */
+.network-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  border: 1px solid var(--primary-color);
+  margin-bottom: var(--spacing-sm);
+  background-color: var(--surface-color);
   width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  box-sizing: border-box;
 }
 
-button {
-  width: 100%;
-  padding: 10px;
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  border-radius: 4px;
+.network-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.network-icons {
+  display: flex;
+  gap: var(--spacing-sm);
+  color: var(--primary-color);
+}
+
+.network-icons svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+.network-row label {
+  color: var(--text-color);
   cursor: pointer;
 }
 
-button:hover {
-  background-color: #45a049;
+.network-row input[type="radio"] {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--primary-color);
+  background-color: var(--surface-color);
+  cursor: pointer;
+  position: relative;
 }
 
+.network-row input[type="radio"]:checked {
+  background-color: var(--primary-color);
+}
+
+.network-row input[type="radio"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 6px;
+  width: 6px;
+  height: 6px;
+  background-color: var(--background-color);
+}
+
+/* Square button style - matching octave buttons */
+#scanBtn.square-btn {
+  width: 200px;
+  height: 40px;
+  background-color: var(--background-color);
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: var(--font-size-base);
+  transition: all var(--transition-speed) var(--transition-timing);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-left: auto;
+  padding: 0;
+}
+
+#scanBtn.square-btn:hover {
+  background-color: var(--primary-color);
+  color: var(--background-color);
+}
+
+/* Password field styling */
+#password-field {
+  margin-top: var(--spacing-lg);
+  display: flex;
+  gap: var(--spacing-md);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#password-field input {
+  flex: 1;
+  height: 40px;
+  background-color: var(--background-color);
+  border: 1px solid var(--primary-color);
+  color: var(--text-color);
+  padding: 0 var(--spacing-md);
+  box-sizing: border-box;
+}
+
+#password-field .square-btn {
+  width: 200px;
+  /* Match scan networks button width */
+  height: 40px;
+  background-color: var(--background-color);
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: var(--font-size-base);
+  transition: all var(--transition-speed) var(--transition-timing);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0;
+  margin: 0;
+}
+
+#password-field .square-btn:hover {
+  background-color: var(--primary-color);
+  color: var(--background-color);
+}
+
+/* Spinner */
 .spinner {
   display: none;
   margin: var(--spacing-lg) auto;
-  border: 4px solid var(--border-color);
-  border-top: 4px solid var(--secondary-color);
+  border: 2px solid var(--surface-color);
+  border-top: 2px solid var(--primary-color);
   border-radius: 50%;
   width: 30px;
   height: 30px;
@@ -80,6 +204,10 @@ button:hover {
   animation: fadeIn 0.5s ease-in;
 }
 
+.fade-out {
+  animation: fadeOut 0.5s ease-out;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -90,10 +218,6 @@ button:hover {
   }
 }
 
-.fade-out {
-  animation: fadeOut 0.5s ease-out;
-}
-
 @keyframes fadeOut {
   from {
     opacity: 1;
@@ -102,4 +226,18 @@ button:hover {
   to {
     opacity: 0;
   }
+}
+
+/* Status message styling */
+.status-message {
+  margin-top: var(--spacing-lg);
+  color: var(--primary-color);
+}
+
+.status-message.success {
+  color: var(--success-color);
+}
+
+.status-message.error {
+  color: var(--error-color);
 }

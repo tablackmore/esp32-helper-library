@@ -99,10 +99,18 @@ function removeDirectory(dir) {
     }
 }
 
+function shouldIgnoreFile(filename) {
+    return filename === '.DS_Store';
+}
+
 function processDirectory(dir) {
     const files = fs.readdirSync(dir);
 
     files.forEach(file => {
+        if (shouldIgnoreFile(file)) {
+            return; // Skip .DS_Store files
+        }
+
         const filepath = path.join(dir, file);
         const stat = fs.statSync(filepath);
 

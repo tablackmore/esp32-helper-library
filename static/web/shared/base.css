@@ -37,18 +37,13 @@ a:hover {
 }
 
 button {
-    padding: var(--spacing-sm) var(--spacing-md);
-    background-color: var(--primary-color);
-    color: white;
+    padding: 0;
+    background: none;
     border: none;
-    border-radius: var(--border-radius);
+    border-radius: 0;
+    font: inherit;
+    color: inherit;
     cursor: pointer;
-    font-size: var(--font-size-base);
-    transition: background-color 0.2s;
-}
-
-button:hover {
-    background-color: var(--primary-hover);
 }
 
 input[type="text"],
@@ -319,4 +314,14 @@ input[type="radio"]:checked::after {
     margin-top: var(--spacing-xs);
     font-size: var(--font-size-small);
     color: var(--error-color);
+}
+
+/* Remove any default border-radius */
+.card,
+.form-control,
+input[type="text"],
+input[type="password"],
+select,
+button {
+    border-radius: 0;
 }
