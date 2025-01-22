@@ -7,6 +7,7 @@
 #include "core/WebServer.h"
 #include "core/DnsManager.h"
 #include "core/WiFiManager.h"
+#include "config/HardwareConfig.h"
 
 const char *ssid = "Test_Network";
 const char *password = "12345678";
@@ -17,6 +18,12 @@ AsyncWebSocket ws("/ws");
 void setup()
 {
   Serial.begin(115200);
+
+  // Initialize LEDs
+  pinMode(HardwareConfig::WIFI_ACTIVE_LED, OUTPUT);
+  pinMode(HardwareConfig::BLE_ACTIVE_LED, OUTPUT);
+  digitalWrite(HardwareConfig::WIFI_ACTIVE_LED, LOW);
+  digitalWrite(HardwareConfig::BLE_ACTIVE_LED, LOW);
 
   // Initialize SPIFFS
   if (!SPIFFS.begin(true))

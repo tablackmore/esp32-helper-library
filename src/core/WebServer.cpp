@@ -1,7 +1,14 @@
 #include "WebServer.h"
+#include "../config/HardwareConfig.h"
 #include <ESPmDNS.h>
+#include <Arduino.h>
 
-WebServer::WebServer() {}
+WebServer::WebServer()
+{
+    // Initialize WiFi status LED
+    pinMode(HardwareConfig::WIFI_ACTIVE_LED, OUTPUT);
+    digitalWrite(HardwareConfig::WIFI_ACTIVE_LED, LOW);
+}
 
 void WebServer::begin()
 {
@@ -9,6 +16,15 @@ void WebServer::begin()
     setupCaptivePortalRoutes();
     server.begin();
     Serial.println("Web Server started");
+
+    // Turn on LED when WiFi is ready
+    digitalWrite(HardwareConfig::WIFI_ACTIVE_LED, HIGH);
+}
+
+void WebServer::stop()
+{
+    digitalWrite(HardwareConfig::WIFI_ACTIVE_LED, LOW);
+    server.end();
 }
 
 void WebServer::setupStaticRoutes()

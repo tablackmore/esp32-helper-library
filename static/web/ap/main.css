@@ -241,3 +241,12 @@ h2 {
 .status-message.error {
   color: var(--error-color);
 }
+
+#bluetoothToggle {
+  width: 120px;
+}
+
+#bluetoothToggle.active {
+  background-color: var(--primary-color);
+  color: var(--background-color);
+}

@@ -11,8 +11,8 @@ class MidiWebSocket
 public:
     static MidiWebSocket &getInstance();
     void begin(AsyncWebServer *server);
-    void startBluetooth() { MidiHandler::getInstance().begin(); }
-    void end() { MidiHandler::getInstance().end(); }
+    void startBluetooth() { MidiHandler::getInstance().enableBluetooth(); }
+    void end() { MidiHandler::getInstance().disableBluetooth(); }
 
 private:
     static const char *WEBSOCKET_PATH;

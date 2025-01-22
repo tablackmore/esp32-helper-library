@@ -36,7 +36,27 @@ void MidiWebSocket::handleEvent(AsyncWebSocket *server,
 
             String type = doc["type"];
             uint8_t channel = doc["channel"] | 0;
+            if (type == "bluetooth")
+            {
+                bool enable = doc["enable"] | true;
+                if (enable)
+                {
+                    MidiHandler::getInstance().enableBluetooth();
+                }
+                else
+                {
+                    MidiHandler::getInstance().disableBluetooth();
+                }
 
+                // Send back current state
+                JsonDocument response;
+                response["type"] = "bluetooth";
+                response["enabled"] = MidiHandler::getInstance().isBluetoothEnabled();
+                String jsonResponse;
+                serializeJson(response, jsonResponse);
+                client->text(jsonResponse);
+                return;
+            }
             if (type == "noteOn")
             {
                 uint8_t note = doc["note"];

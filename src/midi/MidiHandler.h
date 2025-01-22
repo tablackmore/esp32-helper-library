@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Arduino.h>
-
+#include <config/HardwareConfig.h>
 class MidiHandler
 {
 public:
@@ -13,6 +13,23 @@ public:
 
     void begin();
     void end();
+
+    void enableBluetooth()
+    {
+        begin();
+        digitalWrite(HardwareConfig::BLE_ACTIVE_LED, HIGH);
+    }
+
+    void disableBluetooth()
+    {
+        end();
+        digitalWrite(HardwareConfig::BLE_ACTIVE_LED, LOW);
+    }
+
+    bool isBluetoothEnabled() const
+    {
+        return shouldRun;
+    }
 
     void sendNoteOn(uint8_t note, uint8_t velocity, uint8_t channel);
     void sendNoteOff(uint8_t note, uint8_t velocity, uint8_t channel);
