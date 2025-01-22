@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Aurora Example</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            background: black;
+            overflow: hidden;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --size: 20px;
+        }
+
+        curl 'https://assets.codepen.io/605876/noise-mask.png' \
+ -H 'accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7' \
+ -H 'accept-language: en-GB,en-US;q=0.9,en;q=0.8' \
+ -H 'cache-control: max-age=0' \
+ -H 'cookie: __cf_bm=UhSimNowl_tv4GZx.hPbEVKCyJcfAcnZUFcLEuXgurM-1737575621-1.0.1.1-8OhhvwSvRtOrzbZmgLKW0EDMPhFulFneC.1LA9TKiDNOgPpPddScK787DNlXWhhgkzvsj5vhBVPRaLDu8VkQZw; __cfruid=c3110ef582acc2632792ef1223b44d9f1d4cc6af-1737575621; cf_clearance=TQdXDC7QwSmlfbutTfXsIWgMh6HKH12U.l42jVRcNi4-1737575622-1.2.1.1-c2rzPg0lmfrgoPtl64tTrHm3rgtQFHdFyOTfi_XELf7Z6UoqUy6HFInjEs_kVJI4OgFtbr9xt44Z1Hu3rH9pVBxn79Uhn7XIpz8o5ePpkc.gr1yI4ndv.XtW3laevoLVyfIZuhRGCLwSRqg3FPOAQyjSY2hZ6ELrLwsFFdst6PNrKM4kcxywH3u24CxRUbGIQFzI_I5wWxS93gbJ8Ui.b2oD63hBAHue7H3h9Lv5.20G87NH.x__WfZAT__zt0nMNxXuoCKklIYvPkogjrr9GBkjf2PL_n9dW_5XZk4ymXs' \
+ -H 'if-none-match: "9b168edaa9b2aabb5d811e38767b2408"' \
+ -H 'priority: u=0, i' \
+ -H 'sec-ch-ua: "Not A(Brand";v="8", "Chromium";v="132", "Google Chrome";v="132"' \
+ -H 'sec-ch-ua-mobile: ?0' \
+ -H 'sec-ch-ua-platform: "macOS"' \
+ -H 'sec-fetch-dest: document' \
+ -H 'sec-fetch-mode: navigate' \
+ -H 'sec-fetch-site: none' \
+ -H 'sec-fetch-user: ?1' \
+ -H 'upgrade-insecure-requests: 1' \
+ -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36';
+        curl 'chrome-extension://liecbddmkiiihnedobmlmillhodjkdmb/fonts/CircularXXWeb-Book.woff2' \
+ -H 'Origin: https://assets.codepen.io' \
+ -H 'If-None-Match: "Tnk4wvAH4k9HULn9nWJVb3Jj1TU="' \
+ -H 'Referer;' \
+ -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36' \
+ -H 'If-Modified-Since: Thu, 16 Jan 2025 18:10:30 GMT'
+
+        body {
+            display: grid;
+            place-items: center;
+            min-height: 100vh;
+            background: hsl(0 0% 6%);
+        }
+
+        .el {
+            background: conic-gradient(from 180deg at 50% 70%, hsla(0, 0%, 98%, 1) 0deg, #eec32d 72.0000010728836deg, #ec4b4b 144.0000021457672deg, #709ab9 216.00000858306885deg, #4dffbf 288.0000042915344deg, hsla(0, 0%, 98%, 1) 1turn);
+            width: 100%;
+            height: 100%;
+            mask:
+                radial-gradient(circle at 50% 50%, white 2px, transparent 2.5px) 50% 50% / var(--size) var(--size),
+                url("./noise-mask.png") 256px 50% / 256px 256px;
+            mask-composite: intersect;
+            animation: flicker 20s infinite linear;
+        }
+
+        @keyframes flicker {
+            to {
+                mask-position: 50% 50%, 0 50%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="el">
+        <h1>Arora</h1>
+        <p>Arora is a MIDI controller that runs on an ESP32.</p>
+        <p>It is a work in progress and is not yet ready for production.</p>
+    </div>
+</body>
+
+</html>
