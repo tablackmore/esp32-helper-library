@@ -27,7 +27,7 @@ bool DnsManager::initializeMDNS(const char *hostname)
     {
         return false;
     }
-
+    delay(200);
     MDNS.addService("http", "tcp", 80);
     return true;
 }
