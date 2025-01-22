@@ -38,3 +38,4 @@ Temporary Items
 .apdisk
 
 # Remove the data/web directory as it is built by the build process
+data/web/
