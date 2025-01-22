@@ -203,4 +203,31 @@ document.addEventListener("DOMContentLoaded", function () {
       JSON.stringify({ type: "connect", ssid: selectedNetwork, password })
     );
   }
+
+  const midiSocket = new WebSocket(`ws://${location.hostname}/midi`);
+  const bluetoothToggle = document.getElementById("bluetoothToggle");
+
+  midiSocket.onopen = () => {
+    console.log("Connected to MIDI WebSocket");
+  };
+
+  midiSocket.onmessage = (event) => {
+    const message = JSON.parse(event.data);
+    if (message.type === "bluetooth") {
+      updateBluetoothStatus(message.enabled);
+    }
+  };
+
+  function updateBluetoothStatus(enabled) {
+    bluetoothToggle.classList.toggle('active', enabled);
+    bluetoothToggle.querySelector('.status').textContent = enabled ? 'ON' : 'OFF';
+  }
+
+  bluetoothToggle.addEventListener('click', () => {
+    const currentState = bluetoothToggle.classList.contains('active');
+    midiSocket.send(JSON.stringify({
+      type: "bluetooth",
+      enable: !currentState
+    }));
+  });
 });
