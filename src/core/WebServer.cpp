@@ -7,18 +7,6 @@ void WebServer::begin()
 {
     setupStaticRoutes();
     setupCaptivePortalRoutes();
-
-    // Start mDNS
-    if (!MDNS.begin("esp32"))
-    {
-        Serial.println("Error starting mDNS");
-    }
-    else
-    {
-        MDNS.addService("http", "tcp", 80);
-        Serial.println("mDNS responder started at http://esp32.local");
-    }
-
     server.begin();
     Serial.println("Web Server started");
 }
@@ -38,7 +26,7 @@ void WebServer::setupStaticRoutes()
     // Handle favicon
     server.on("/favicon.ico", HTTP_GET, [](AsyncWebServerRequest *request)
               {
-        if (SPIFFS.exists("/favicon.ico.gz")) {
+        if (SPIFFS.exists("/web/favicon.ico.gz")) {
             AsyncWebServerResponse *response = request->beginResponse(SPIFFS, "/shared/favicon.ico.gz", "image/x-icon");
             response->addHeader("Content-Encoding", "gzip");
             request->send(response);
