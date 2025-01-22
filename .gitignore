@@ -37,3 +37,4 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+# Remove the data/web directory as it is built by the build process
