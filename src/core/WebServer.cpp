@@ -6,8 +6,8 @@
 WebServer::WebServer()
 {
     // Initialize WiFi status LED
-    pinMode(HardwareConfig::WIFI_ACTIVE_LED, OUTPUT);
-    digitalWrite(HardwareConfig::WIFI_ACTIVE_LED, LOW);
+    pinMode(HardwareConfig::WIFI_ACTIVE_LED_PIN, OUTPUT);
+    digitalWrite(HardwareConfig::WIFI_ACTIVE_LED_PIN, LOW);
 }
 
 void WebServer::begin()
@@ -18,12 +18,12 @@ void WebServer::begin()
     Serial.println("Web Server started");
 
     // Turn on LED when WiFi is ready
-    digitalWrite(HardwareConfig::WIFI_ACTIVE_LED, HIGH);
+    digitalWrite(HardwareConfig::WIFI_ACTIVE_LED_PIN, HIGH);
 }
 
 void WebServer::stop()
 {
-    digitalWrite(HardwareConfig::WIFI_ACTIVE_LED, LOW);
+    digitalWrite(HardwareConfig::WIFI_ACTIVE_LED_PIN, LOW);
     server.end();
 }
 

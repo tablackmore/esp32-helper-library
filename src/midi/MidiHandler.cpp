@@ -1,33 +1,28 @@
 #include "MidiHandler.h"
+#include "../midi/MidiMessage.h"
+#include "../config/MidiMapping.h"
+
+// BLE-MIDI includes
+#define BLEMIDI_ESP32_NimBLE_INCLUDE_CPP
 #include <BLEMIDI_Transport.h>
 #include <hardware/BLEMIDI_ESP32_NimBLE.h>
 #include <MIDI.h>
 
 namespace
 {
-    // Create MIDI instance for Serial2 (Hardware UART)
     struct Serial2MIDISettings : public midi::DefaultSettings
     {
         static const long BaudRate = 31250;
     };
 
-    static MIDI_CREATE_CUSTOM_INSTANCE(HardwareSerial, Serial2, SERIALMIDI, Serial2MIDISettings);
-    static BLEMIDI_CREATE_DEFAULT_INSTANCE();
+    // Create static MIDI instances
+    MIDI_CREATE_CUSTOM_INSTANCE(HardwareSerial, Serial2, serialMidi, Serial2MIDISettings);
+    BLEMIDI_CREATE_DEFAULT_INSTANCE();
 }
 
 MidiHandler::MidiHandler()
 {
     midiQueue = xQueueCreate(QUEUE_SIZE, sizeof(MidiMessage));
-}
-
-MidiHandler::~MidiHandler()
-{
-    if (midiTaskHandle != nullptr)
-    {
-        shouldRun = false;
-        vTaskDelete(midiTaskHandle);
-    }
-    vQueueDelete(midiQueue);
 }
 
 void MidiHandler::begin()
@@ -45,7 +40,7 @@ void MidiHandler::begin()
         Serial.println("DEBUG: Disconnected from BLE MIDI"); });
 
     MIDI.begin();
-    SERIALMIDI.begin(MIDI_CHANNEL_OMNI);
+    serialMidi.begin(MIDI_CHANNEL_OMNI);
 
     shouldRun = true;
     xTaskCreatePinnedToCore(
@@ -84,7 +79,7 @@ void MidiHandler::midiTask(void *parameter)
         if (handler->isConnected)
         {
             MIDI.read();
-            SERIALMIDI.read();
+            serialMidi.read();
         }
 
         if (xQueueReceive(handler->midiQueue, &msg, 0) == pdTRUE)
@@ -93,15 +88,20 @@ void MidiHandler::midiTask(void *parameter)
             {
             case MidiMessage::NOTE_ON:
                 MIDI.sendNoteOn(msg.data1, msg.data2, msg.channel);
-                SERIALMIDI.sendNoteOn(msg.data1, msg.data2, msg.channel);
+                serialMidi.sendNoteOn(msg.data1, msg.data2, msg.channel);
                 break;
             case MidiMessage::NOTE_OFF:
                 MIDI.sendNoteOff(msg.data1, msg.data2, msg.channel);
-                SERIALMIDI.sendNoteOff(msg.data1, msg.data2, msg.channel);
+                serialMidi.sendNoteOff(msg.data1, msg.data2, msg.channel);
                 break;
             case MidiMessage::CONTROL_CHANGE:
                 MIDI.sendControlChange(msg.data1, msg.data2, msg.channel);
-                SERIALMIDI.sendControlChange(msg.data1, msg.data2, msg.channel);
+                serialMidi.sendControlChange(msg.data1, msg.data2, msg.channel);
+                break;
+            case MidiMessage::PITCH_BEND:
+                // Pitch bend expects a single 14-bit value
+                MIDI.sendPitchBend(msg.data1 | (msg.data2 << 7), msg.channel);
+                serialMidi.sendPitchBend(msg.data1 | (msg.data2 << 7), msg.channel);
                 break;
             }
         }
@@ -129,4 +129,26 @@ void MidiHandler::sendControlChange(uint8_t controller, uint8_t value, uint8_t c
     MidiMessage msg{MidiMessage::CONTROL_CHANGE, controller, value, channel};
     xQueueSend(midiQueue, &msg, 0);
     Serial.printf("DEBUG: Control change: %d, value: %d, channel: %d\n", controller, value, channel);
+}
+
+void MidiHandler::sendPitchBend(uint16_t value, uint8_t channel)
+{
+    // Split 14-bit value into two 7-bit values
+    MidiMessage msg{
+        MidiMessage::PITCH_BEND,
+        static_cast<uint8_t>(value & 0x7F),        // LSB
+        static_cast<uint8_t>((value >> 7) & 0x7F), // MSB
+        channel};
+    xQueueSend(midiQueue, &msg, 0);
+    Serial.printf("DEBUG: Pitch bend: %d, channel: %d\n", value, channel);
+}
+
+MidiHandler::~MidiHandler()
+{
+    if (midiTaskHandle != nullptr)
+    {
+        shouldRun = false;
+        vTaskDelete(midiTaskHandle);
+    }
+    vQueueDelete(midiQueue);
 }
