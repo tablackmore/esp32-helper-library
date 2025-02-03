@@ -37,7 +37,7 @@ void PotentiometerReader::update()
         if (pots[i].analog->hasChanged())
         {
             uint16_t smoothedValue = pots[i].analog->getValue();
-            uint16_t midiValue = mapToMidi(smoothedValue, (pots[i].cc >= MidiMapping::PITCH_BEND_CC) ? MidiMapping::PITCH_BEND_MAX : MidiMapping::MIDI_MAX);
+            uint16_t midiValue = mapToMidi(smoothedValue, (pots[i].cc >= MidiMapping::CC_PITCH_BEND) ? MidiMapping::PITCH_BEND_MAX : MidiMapping::MIDI_MAX);
             sendMidiValues(pots[i].cc, midiValue);
         }
     }
@@ -45,7 +45,7 @@ void PotentiometerReader::update()
 
 void PotentiometerReader::sendMidiValues(uint8_t cc, uint16_t value)
 {
-    if (cc == MidiMapping::PITCH_BEND_CC)
+    if (cc == MidiMapping::CC_PITCH_BEND)
     {
         MidiHandler::getInstance().sendPitchBend(
             value, MidiMapping::DEFAULT_CHANNEL);

@@ -10,13 +10,15 @@ namespace HardwareConfig
 
     // Analog Inputs - Make sure these are ADC1 pins
     // ESP32 ADC1 pins: 32, 33, 34, 35, 36, 37, 38, 39
-    constexpr uint8_t JOYSTICK_1_X_PIN = 32; // Changed to ADC1 pin
-    constexpr uint8_t JOYSTICK_1_Y_PIN = 33; // Changed to ADC1 pin
+    constexpr uint8_t JOYSTICK_1_X_PIN = 32;
+    constexpr uint8_t JOYSTICK_1_Y_PIN = 33;
+    constexpr uint8_t JOYSTICK_2_X_PIN = 34;
+    constexpr uint8_t JOYSTICK_2_Y_PIN = 35;
 
     // Potentiometer Pins
-    constexpr uint8_t NUM_POTS = 2; // Maximum number of potentiometers
+    constexpr uint8_t NUM_POTS = 4; // Maximum number of potentiometers
     constexpr uint8_t POT_PINS[NUM_POTS] = {
-        JOYSTICK_1_X_PIN, JOYSTICK_1_Y_PIN};
+        JOYSTICK_1_X_PIN, JOYSTICK_1_Y_PIN, JOYSTICK_2_X_PIN, JOYSTICK_2_Y_PIN};
 
     // ADC Configuration
     constexpr uint8_t ADC_RESOLUTION = 12;                        // 12-bit resolution
