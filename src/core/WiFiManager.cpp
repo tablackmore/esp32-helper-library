@@ -19,6 +19,12 @@ void WiFiManager::beginAccessPoint(const char *ssid, const char *password)
         Serial.println("Access Point Created");
         Serial.print("AP IP address: ");
         Serial.println(WiFi.softAPIP());
+        Serial.print("AP MAC address: ");
+        Serial.println(WiFi.softAPmacAddress());
+        Serial.print("STA MAC address: ");
+        Serial.println(WiFi.macAddress());
+        Serial.print("STA IP address: ");
+        Serial.println(WiFi.localIP());
     }
     else
     {
