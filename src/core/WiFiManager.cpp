@@ -1,4 +1,5 @@
 #include "WiFiManager.h"
+#include "../utils/WiFiScanner.h"
 #include <Arduino.h>
 #include <SPIFFS.h>
 #include <ArduinoJson.h>
@@ -90,22 +91,24 @@ void WiFiManager::startScan()
 
 void WiFiManager::checkScanResult()
 {
-    if (scanning)
-    {
-        int result = WiFi.scanComplete();
-        if (result >= 0)
+    // Add debugging
+    static unsigned long lastCheck = 0;
+    if (millis() - lastCheck > 5000)
+    { // Every 5 seconds
+        int status = WiFi.scanComplete();
+        Serial.printf("DEBUG: WiFi scan status: %d\n", status);
+
+        // If scan completed but not processed, process it now
+        if (status >= 0)
         {
-            scanning = false;
-            Serial.printf("%d networks found\n", result);
-            WiFi.scanDelete();
+            Serial.println("DEBUG: Found completed scan, processing results");
+            WiFiScanner::getInstance().handleScanResults(status);
         }
-        else if (result == WIFI_SCAN_FAILED)
-        {
-            Serial.println("WiFi scan failed");
-            scanning = false;
-            WiFi.scanDelete();
-        }
+
+        lastCheck = millis();
     }
+
+    WiFiScanner::getInstance().checkScanResult();
 }
 
 void WiFiManager::connectToNetwork(const char *ssid, const char *password, ConnectCallback callback)

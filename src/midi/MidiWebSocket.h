@@ -25,6 +25,8 @@ private:
                      void *arg,
                      uint8_t *data,
                      size_t len);
+    void handleWebSocketData(AsyncWebSocketClient *client, void *arg, uint8_t *data, size_t len);
+    void handleBluetoothCommand(AsyncWebSocketClient *client, bool enable);
 };
 
 #endif

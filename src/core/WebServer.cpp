@@ -29,6 +29,9 @@ void WebServer::stop()
 
 void WebServer::setupStaticRoutes()
 {
+    // Debug logging
+    Serial.println("Setting up static routes");
+
     // Root route with AP/STA detection
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
               {
@@ -42,51 +45,59 @@ void WebServer::setupStaticRoutes()
     // Handle favicon
     server.on("/favicon.ico", HTTP_GET, [](AsyncWebServerRequest *request)
               {
+        Serial.println("Favicon requested");
         if (SPIFFS.exists("/web/favicon.ico.gz")) {
-            AsyncWebServerResponse *response = request->beginResponse(SPIFFS, "/shared/favicon.ico.gz", "image/x-icon");
-            response->addHeader("Content-Encoding", "gzip");
-            request->send(response);
+            request->send(SPIFFS, "/web/favicon.ico.gz", "image/x-icon", true);
+        } else if (SPIFFS.exists("/web/favicon.ico")) {
+            request->send(SPIFFS, "/web/favicon.ico", "image/x-icon");
         } else {
-            request->send(SPIFFS, "web/favicon.ico", "image/x-icon");
+            request->send(404);
         } });
 
-    // Generic file handler
-    server.on("/*", HTTP_GET, [this](AsyncWebServerRequest *request)
-              {
+    // Generic file handler with better error checking
+    server.onNotFound([this](AsyncWebServerRequest *request)
+                      {
+        if (request->method() != HTTP_GET) {
+            request->send(405);
+            return;
+        }
 
         String path = "/web" + request->url();
         String gzPath = path + ".gz";
 
-        // Directory handling
-        if (path.endsWith("/")) {
-            path += "index.html";
-            gzPath = path + ".gz";
-        } else {
-            int lastSlash = path.lastIndexOf('/');
-            int lastDot = path.lastIndexOf('.');
-            bool hasNoExtension = (lastDot == -1 || lastDot < lastSlash);
-            
-            if (hasNoExtension) {
-                String testPath = path + "/index.html";
-                String testGzPath = testPath + ".gz";
-                if (SPIFFS.exists(testGzPath) || SPIFFS.exists(testPath)) {
-                    path = testPath;
-                    gzPath = testGzPath;
-                }
-            }
-        }
-
-        Serial.println("Looking for file: " + gzPath);
-        if (SPIFFS.exists(gzPath)) {
-            AsyncWebServerResponse *response = request->beginResponse(SPIFFS, gzPath, getContentType(request->url()));
-            response->addHeader("Content-Encoding", "gzip");
-            request->send(response);
-        } else if (SPIFFS.exists(path)) {
-            request->send(SPIFFS, path, getContentType(request->url()));
-        } else {
+        Serial.print("Looking for file: "); Serial.println(gzPath);
+        
+        // Check if files exist before trying to serve them
+        bool gzExists = SPIFFS.exists(gzPath);
+        bool fileExists = SPIFFS.exists(path);
+        
+        if (!gzExists && !fileExists) {
             Serial.println("File not found: " + path);
             request->send(404);
+            return;
+        }
+
+        // Use a try-catch block to prevent crashes
+        try {
+            String contentType = getContentType(path);
+            if (gzExists) {
+                AsyncWebServerResponse *response = request->beginResponse(SPIFFS, gzPath, contentType);
+                if (response) {
+                    response->addHeader("Content-Encoding", "gzip");
+                    request->send(response);
+                } else {
+                    Serial.println("Failed to create response for: " + gzPath);
+                    request->send(500);
+                }
+            } else {
+                request->send(SPIFFS, path, contentType);
+            }
+        } catch (...) {
+            Serial.println("Exception while serving: " + path);
+            request->send(500);
         } });
+
+    Serial.println("Static routes setup complete");
 }
 
 void WebServer::setupCaptivePortalRoutes()

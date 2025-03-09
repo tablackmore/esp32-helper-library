@@ -7,7 +7,7 @@
 #include "core/WebServer.h"
 #include "core/DnsManager.h"
 #include "core/WiFiManager.h"
-#include "midi/PotentiometerReader.h"
+// #include "midi/PotentiometerReader.h"
 
 const char *ssid = "Test_Network";
 const char *password = "12345678";
@@ -18,6 +18,11 @@ AsyncWebSocket ws("/ws");
 void setup()
 {
   Serial.begin(115200);
+  delay(1000); // Give serial time to connect
+
+  // Print memory info
+  Serial.printf("Total heap: %d\n", ESP.getHeapSize());
+  Serial.printf("Free heap: %d\n", ESP.getFreeHeap());
 
   // Initialize SPIFFS
   if (!SPIFFS.begin(true))
@@ -57,15 +62,30 @@ void setup()
   delay(500);
   MidiWebSocket::getInstance().startBluetooth();
 
-  PotentiometerReader::getInstance().begin();
+  // PotentiometerReader::getInstance().begin();
 }
 
 void loop()
 {
   DnsManager::getInstance().processRequests();
-  WiFiManager::getInstance().checkScanResult();
 
-  PotentiometerReader::getInstance().update();
+  // Add more debugging for WiFi scanning
+  static unsigned long lastScanCheck = 0;
+  if (millis() - lastScanCheck > 500)
+  { // Check more frequently (every 500ms)
+    WiFiManager::getInstance().checkScanResult();
+    lastScanCheck = millis();
+  }
+
+  // Add periodic heap reporting
+  static unsigned long lastHeapReport = 0;
+  if (millis() - lastHeapReport > 10000)
+  { // Every 10 seconds
+    Serial.printf("Free heap: %d\n", ESP.getFreeHeap());
+    lastHeapReport = millis();
+  }
+
+  // PotentiometerReader::getInstance().update();
 }
 
 void onProgrammingMode()
