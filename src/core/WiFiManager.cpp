@@ -14,7 +14,7 @@ void WiFiManager::beginAccessPoint(const char *ssid, const char *password)
 {
     configureAccessPoint();
 
-    if (WiFi.softAP(ssid, password))
+    if (WiFi.softAP(ssid, password, 11, 0, 4, false))
     {
         delay(100); // Brief delay for AP setup
         Serial.println("Access Point Created");
