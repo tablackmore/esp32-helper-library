@@ -97,6 +97,10 @@ void ConfigWebSocket::handleWebSocketData(AsyncWebSocketClient *client, void *ar
         Serial.printf("Connecting to network: %s with password: %s\n", ssid, password);
         handleConnectToNetworkRequest(client, ssid, password);
     }
+    else if (strcmp(type, "clearSavedNetwork") == 0)
+    {
+        handleClearSavedNetworkRequest(client);
+    }
     else if (strcmp(type, "getFiles") == 0)
     {
         handleGetFilesRequest(client);
@@ -235,6 +239,28 @@ void ConfigWebSocket::handleConnectToNetworkRequest(AsyncWebSocketClient *client
         } else {
             Serial.println("Client disconnected, couldn't send connection status");
         } });
+}
+
+void ConfigWebSocket::handleClearSavedNetworkRequest(AsyncWebSocketClient *client)
+{
+    Serial.println("Handling clear saved network request");
+
+    // Clear the saved network credentials
+    WiFiScanner::getInstance().clearSavedNetwork();
+
+    // Send response
+    JsonDocument response;
+    response["type"] = "clearNetworkResult";
+    response["success"] = true;
+
+    String jsonResponse;
+    serializeJson(response, jsonResponse);
+
+    if (client->status() == WS_CONNECTED)
+    {
+        client->text(jsonResponse);
+        Serial.println("Clear network result sent to client");
+    }
 }
 
 void ConfigWebSocket::handleGetFilesRequest(AsyncWebSocketClient *client)

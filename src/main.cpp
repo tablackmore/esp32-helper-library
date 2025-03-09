@@ -25,44 +25,84 @@ void setup()
   Serial.printf("Free heap: %d\n", ESP.getFreeHeap());
 
   // Initialize SPIFFS
+  Serial.println("Mounting SPIFFS...");
   if (!SPIFFS.begin(true))
   {
     Serial.println("Failed to mount SPIFFS");
     return;
   }
   Serial.println("File system mounted SPIFFS");
+
+  // List all files in SPIFFS
+  Serial.println("Files in SPIFFS:");
+  File root = SPIFFS.open("/");
+  File file = root.openNextFile();
+  while (file)
+  {
+    Serial.printf("  %s (%d bytes)\n", file.name(), file.size());
+    file = root.openNextFile();
+  }
+
   delay(1000);
 
   // Configure WiFi
+  Serial.println("Configuring WiFi...");
   WiFiManager::getInstance().setHostname(hostname);
   WiFiManager::getInstance().beginAccessPoint(ssid, password);
 
-  // Try to connect to saved WiFi network
-  WiFiManager::getInstance().tryLoadSavedNetwork([](bool success)
-                                                 {
-    if (success) {
-      Serial.println("Connected to saved network!");
-      IPAddress staIP = WiFi.localIP();
-      Serial.print("STA IP address: ");
-      Serial.println(staIP);
-    } else {
-      Serial.println("Failed to connect to saved network");
-    } });
-
   // Initialize DNS and Web services
+  Serial.println("Initializing DNS and Web services...");
   DnsManager::getInstance().begin(WiFiManager::getInstance().getAccessPointIP(), hostname);
   WebServer::getInstance().begin();
 
   // Setup WebSocket handlers
+  Serial.println("Setting up WebSocket handlers...");
   AsyncWebServer *server = WebServer::getInstance().getServer();
   ConfigWebSocket::getInstance().begin(server);
   MidiWebSocket::getInstance().begin(server);
 
+  // Try to connect to saved WiFi network
+  Serial.println("Attempting to connect to saved WiFi network...");
+  WiFiManager::getInstance().tryLoadSavedNetwork([](bool success)
+                                                 {
+    if (success) {
+      Serial.println("=== CONNECTED TO SAVED NETWORK SUCCESSFULLY ===");
+      IPAddress staIP = WiFi.localIP();
+      Serial.print("STA IP address: ");
+      Serial.println(staIP);
+      Serial.printf("Gateway: %s, Subnet: %s\n", 
+                   WiFi.gatewayIP().toString().c_str(), 
+                   WiFi.subnetMask().toString().c_str());
+    } else {
+      Serial.println("=== FAILED TO CONNECT TO SAVED NETWORK ===");
+      Serial.printf("Current WiFi status: %d\n", WiFi.status());
+      
+      // Check if credentials file exists
+      if (SPIFFS.exists("/wifi_credentials.json")) {
+        Serial.println("Credentials file exists but connection failed");
+        
+        // Try to read the file for debugging
+        File file = SPIFFS.open("/wifi_credentials.json", "r");
+        if (file) {
+          String content = file.readString();
+          file.close();
+          Serial.printf("Credentials file content: '%s'\n", content.c_str());
+        } else {
+          Serial.println("Could not open credentials file for reading");
+        }
+      } else {
+        Serial.println("No credentials file found");
+      }
+    } });
+
   // Initialize MIDI
+  Serial.println("Initializing MIDI...");
   delay(500);
   MidiWebSocket::getInstance().startBluetooth();
 
   // PotentiometerReader::getInstance().begin();
+
+  Serial.println("Setup complete");
 }
 
 void loop()

@@ -5,6 +5,7 @@
 #include <vector>
 #include <functional>
 #include <ArduinoJson.h>
+#include <SPIFFS.h>
 
 // Define the WiFiNetwork struct
 struct WiFiNetwork
@@ -39,6 +40,12 @@ private:
     ~WiFiScanner();
 
     void processResults(int numNetworks);
+
+    // New methods for handling credentials in SPIFFS
+    void saveCredentialsToFile(const String &ssid, const String &password);
+    void verifyCredentialsFile(const String &expectedSSID);
+    bool loadCredentialsFromFile(std::function<void(bool)> callback);
+    void connectToSavedNetwork(const String &ssid, const String &password, std::function<void(bool)> callback);
 
     std::vector<ScanResultCallback> subscribers;
     JsonDocument networkResults;

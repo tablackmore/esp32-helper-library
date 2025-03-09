@@ -45,8 +45,17 @@ void WiFiManager::configureAccessPoint()
 
 void WiFiManager::tryLoadSavedNetwork(ConnectCallback callback)
 {
+    Serial.println("WiFiManager: === TRYING TO LOAD SAVED NETWORK ===");
+
+    // First try to use WiFiScanner's method which uses SPIFFS JSON file
+    Serial.println("WiFiManager: Calling WiFiScanner::tryLoadSavedNetwork");
+    WiFiScanner::getInstance().tryLoadSavedNetwork(callback);
+
+    // The old code below is now redundant but kept for reference
+    /*
     if (!SPIFFS.exists("/wifi_config.json"))
     {
+        Serial.println("WiFiManager: No wifi_config.json file found");
         if (callback)
             callback(false);
         return;
@@ -55,6 +64,7 @@ void WiFiManager::tryLoadSavedNetwork(ConnectCallback callback)
     File configFile = SPIFFS.open("/wifi_config.json", "r");
     if (!configFile)
     {
+        Serial.println("WiFiManager: Failed to open wifi config file");
         if (callback)
             callback(false);
         return;
@@ -66,7 +76,7 @@ void WiFiManager::tryLoadSavedNetwork(ConnectCallback callback)
 
     if (error)
     {
-        Serial.println("Failed to parse wifi config file");
+        Serial.println("WiFiManager: Failed to parse wifi config file");
         if (callback)
             callback(false);
         return;
@@ -76,6 +86,7 @@ void WiFiManager::tryLoadSavedNetwork(ConnectCallback callback)
     const char *password = doc["password"];
 
     connectToNetwork(ssid, password, callback);
+    */
 }
 
 void WiFiManager::startScan()

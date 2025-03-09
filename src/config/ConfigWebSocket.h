@@ -30,6 +30,7 @@ private:
 
     void handleScanNetworksRequest(AsyncWebSocketClient *client);
     void handleConnectToNetworkRequest(AsyncWebSocketClient *client, const char *ssid, const char *password);
+    void handleClearSavedNetworkRequest(AsyncWebSocketClient *client);
     void handleGetFilesRequest(AsyncWebSocketClient *client);
     void handleGetFileContentRequest(AsyncWebSocketClient *client, const char *filename);
     void handleSaveFileRequest(AsyncWebSocketClient *client, const char *filename, const char *content);
