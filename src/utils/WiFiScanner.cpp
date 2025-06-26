@@ -409,14 +409,14 @@ void WiFiScanner::verifyCredentialsFile(const String &expectedSSID)
         return;
     }
 
-    // Verify SSID and password exist
-    if (!doc.containsKey("ssid"))
+    // Verify SSID and password exist - using newer ArduinoJson methods
+    if (!doc["ssid"].is<String>())
     {
         Serial.println("WiFiScanner: ERROR - SSID key missing from credentials file");
         return;
     }
 
-    if (!doc.containsKey("password"))
+    if (!doc["password"].is<String>())
     {
         Serial.println("WiFiScanner: ERROR - Password key missing from credentials file");
         return;
@@ -530,8 +530,8 @@ bool WiFiScanner::loadCredentialsFromFile(std::function<void(bool)> callback)
         return false;
     }
 
-    // Check if required fields exist
-    if (!doc.containsKey("ssid") || !doc.containsKey("password"))
+    // Check if required fields exist - using newer ArduinoJson methods
+    if (!doc["ssid"].is<String>() || !doc["password"].is<String>())
     {
         Serial.println("WiFiScanner: ERROR - Required fields missing from credentials file");
         return false;
